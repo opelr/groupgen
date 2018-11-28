@@ -1,4 +1,9 @@
-"""[summary]
+"""
+seatingchart.backend
+~~~~~~~~~~~~~~~~~~~~
+
+This module contains code for generating the primary functional logic of this
+application.
 """
 
 import random
@@ -13,8 +18,29 @@ def create_seating_chart(
     max_tables=float("Inf"),
     total_indiv=None,
 ):
+    """Returns nested list of names that meet grouping parameters
+
+    Args:
+        names (list): Individuals we are grouping. Each name must be unique
+        together (list, optional): Defaults to None. List of pairwise explicit grouped individuals.
+        apart (list, optional): Defaults to None. List of pairwise explicit separated individuals.
+        max_size (int, optional): Defaults to float("Inf"). Maximum size for a single group.
+        max_tables (int, optional): Defaults to float("Inf"). Maximum number of groups.
+        total_indiv (int, optional): Defaults to None. Generates labels for students, but will not work with `together` or `apart`. 
+
+    Returns:
+        list: Nested list with entries for each group
+
+    Example:
+        >>> names = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"]
+        >>> together = [["a", "b"], ["a", "e"], ["d", "g"], ["f", "g"]]
+        >>> apart = [["a", "f"], ["d", "g"], ["a", "g"]]
+        >>> max_size = 4
+        >>> create_seating_chart(names, together, apart, max_size=max_size)
+        [['e', 'b', 'a', 'c'], ['g', 'd', 'f', 'j'], ['k', 'h', 'i']]
+    """
     # Handle input variables before moving on to function logic
-    if names == [] and total_indiv is not None:
+    if names == [] and total_indiv is not None and together is None and apart is None:
         names = list(map(str, range(total_indiv)))
 
     # Initialize namespace variables
@@ -40,38 +66,6 @@ def create_seating_chart(
 
     return groups_separated
 
-    # Seat students together
-    # if len(groups_separated) > len(seating):
-    #     raise ValueError("More groups than clusters")
-    # if max(groups_separated) > max(seating):
-    #     raise ValueError("Groups are larger than allotted clusters")
-
-    # TODO: Rather than fitting groups into existing clusters, I should write a
-    #       function that takes a nested list and concatenates items on to the
-    #       inner lists so that they maintain balance. I can pass a max_size
-    #       parameter that would trigger appending a new list, or a
-    #       max_num_tables parameter that would prevent the former process
-    #       after a certain point.
-    #
-    #       From there, I can work with the existing `groups_separated` object
-    #       and pull from the `remaining` list
-
-    # for i, group in enumerate(groups_separated):
-    #     empty_seats = seating[i].count(None)
-    #     if len(group) > empty_seats:
-    #         raise ValueError("Not enough empty seats")
-
-    #     clear_seats = [s for s, x in enumerate(seating[i]) if x is None]
-    #     for s, indiv in enumerate(group):
-    #         seating[i][clear_seats[s]] = indiv
-    #         remaining.remove(indiv)
-
-
-# names = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
-# layout = [3, 4, 3]
-# together = [["a", "b"], ["a", "e"], ["d", "g"]]
-# apart = [["a", "d"], ["d", "f"]]
-
 
 def _create_groups(together: list):
     """Returns unions of pairs
@@ -81,12 +75,11 @@ def _create_groups(together: list):
 
     Returns:
         list: Nested list of groups, ordered largest to smallest
-    
+
     Example:
         >>> together = [["a", "b"], ["a", "e"], ["d", "g"]]
         >>> _create_groups(together)
-        
-        >>> [["a", "b", "e"], ["d", "g"]]
+        [["a", "b", "e"], ["d", "g"]]
     """
     groups = []
 
@@ -113,8 +106,16 @@ def _create_groups(together: list):
     return groups
 
 
-def _get_nested_position(var, chart):
-    # Find position in nested list
+def _get_nested_position(var: str, chart: list):
+    """Finds position of a variable inside a nested list
+
+    Args:
+        var (str): Variable we're searching for
+        chart (list): Nested list
+
+    Returns:
+        int: Index of nested list that contains `var`. Returns None if not found.
+    """
     idx = [chart.index(i) for i in chart if var in i]
     if len(idx) == 1:
         return idx[0]
@@ -124,13 +125,13 @@ def _get_nested_position(var, chart):
         raise KeyError("Value occurrs more than once")
 
 
-def _append_item(var, chart, apart):
+def _append_item(var: str, chart: list, apart: list):
     """Append var to chart, verifying that it obeys groups and separation rules
-    
+
     Args:
-        var (str): [description]
-        chart (list): [description]
-        apart (list): [description]
+        var (str): Variable being appended
+        chart (list): Nested list
+        apart (list): List of pairwise separation rules
     """
 
     appended = False
@@ -163,28 +164,25 @@ def _append_item(var, chart, apart):
 
 
 def _separate_individuals(groups: list, apart: list) -> list:
-    """[summary]
+    """Explicit handling of separated individuals
 
     Args:
-        groups (list): [description]
-        apart (list): [description]
-
-    Raises:
-        KeyError: [description]
+        groups (list): Nested list representing groups
+        apart (list): Nested list of explicit pairwise separations
 
     Returns:
-        list: [description]
+        list: Nested list of groups
 
     Example:
         >>> groups = [["a", "b", "c"], ["d", "e", "f"]]
         >>> apart = [["a", "f"], ["d", "g"]]
         >>> _separate_individuals(groups, apart)
-        >>> [["a", "b", "c", "g"], ["d", "e", "f"]]
+        [["a", "b", "c", "g"], ["d", "e", "f"]]
 
         >>> groups = [["a", "b", "c"], ["d", "e", "f"]]
         >>> apart = [["a", "f"], ["d", "g"], ["a", "g"]]
         >>> _separate_individuals(groups, apart)
-        >>> [["a", "b", "c"], ["d", "e", "f"], ["g"]]
+        [["a", "b", "c"], ["d", "e", "f"], ["g"]]
     """
 
     chart = groups.copy()
@@ -218,20 +216,19 @@ def _separate_individuals(groups: list, apart: list) -> list:
 
 
 def _balance_nested_list(
-    nested, item, max_size=float("Inf"), max_num_tables=float("Inf")
+    nested: list, item: str, max_size=float("Inf"), max_num_tables=float("Inf")
 ):
-    """[summary]
+    """Balances a nested list, respecting max size and number of internal lists
 
     Args:
-        nested ([type]): [description]
-        item ([type]): [description]
-        max_size ([type], optional): Defaults to float("Inf"). [description]
-        max_num_tables ([type], optional): Defaults to float("Inf"). [description]
+        nested (list): Nested list
+        item (str): Item to be added
+        max_size (int, optional): Defaults to float("Inf"). Maximum size for a single group.
+        max_num_tables (int, optional): Defaults to float("Inf"). Maximum number of groups.
     """
 
     nested_size = [len(i) for i in nested]
     all_same_len = len(set(nested_size)) == 1
-    min_nested_size = min(nested_size)
     max_nested_size = max(nested_size)
     num_tables = len(nested)
     min_index = nested_size.index(min(nested_size))
