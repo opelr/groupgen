@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 flask = "*"
 flask-wtf = "*"
+python-dotenv = "*"
 
 [dev-packages]
 black = "*"
