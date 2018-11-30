@@ -7,6 +7,9 @@ name = "pypi"
 flask = "*"
 flask-wtf = "*"
 python-dotenv = "*"
+flask-sqlalchemy = "*"
+flask-migrate = "*"
+flask-login = "*"
 
 [dev-packages]
 black = "*"

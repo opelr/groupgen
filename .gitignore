@@ -142,6 +142,8 @@ dmypy.json
 # Django stuff:
 
 # Flask stuff:
+migrations/*
+*.db
 
 # Scrapy stuff:
 

@@ -1,1 +1,2 @@
-FLASK_APP=application.py
+FLASK_APP=seatingchart.py
+FLASK_DEBUG=0

@@ -1,9 +1,36 @@
 <html>
-    <head>
-        <title>SeatingChart.io</title>
-    </head>
-    <body>
-        <hr>
-        {% block content %}{% endblock %}
-    </body>
+
+<head>
+    {% if title %}
+    <title>{{ title }} - SeatingChart.io</title>
+    {% else %}
+    <title>SeatingChart.io</title>
+    {% endif %}
+</head>
+
+<body>
+    <div>
+        SeatingChart.io:
+        <a href="{{ url_for('index') }}">Home</a>        
+        {% if current_user.is_anonymous %}
+        <a href="{{ url_for('register') }}">Sign Up</a>
+        <a href="{{ url_for('login') }}">Login</a>
+        {% else %}
+        <a href="{{ url_for('user', username=current_user.username) }}">Profile</a> 
+        <a href="{{ url_for('logout') }}">Logout</a>
+        {% endif %}
+    </div>
+    <hr>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</body>
+
 </html>
