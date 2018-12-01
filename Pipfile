@@ -11,6 +11,7 @@ flask-sqlalchemy = "*"
 flask-migrate = "*"
 flask-login = "*"
 flask-bootstrap = "*"
+flask-moment = "*"
 
 [dev-packages]
 black = "*"

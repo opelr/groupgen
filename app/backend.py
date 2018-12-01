@@ -53,7 +53,7 @@ def create_seating_chart(
             groups_separated = groups
     else:
         groups_separated = []
-    
+
     if not groups_separated == []:
         largest_group = max([len(g) for g in groups_separated])
         if largest_group > max_size:
@@ -65,6 +65,12 @@ def create_seating_chart(
     for student in remaining:
         _balance_nested_list(
             groups_separated, student, max_size=max_size, max_num_tables=max_tables
+        )
+
+    if len(groups_separated) > max_tables:
+        raise ValueError(
+            "Group definitions do not allow for the ..."\
+            "Please change the number of groups or the group/separates definitions"
         )
 
     return groups_separated
