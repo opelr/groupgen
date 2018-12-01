@@ -1,13 +1,14 @@
 {% extends 'bootstrap/base.html' %}
 
 {% block scripts %}
-    {{ super() }}
-    {{ moment.include_moment() }}
+{{ super() }}
+{{ moment.include_moment() }}
 {% endblock %}
 
 {% block styles -%}
-    {{super()}}
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+{{super()}}
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
+    crossorigin="anonymous">
 {% endblock styles %}
 
 {% block title %}
@@ -25,20 +26,20 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ url_for('index') }}">SeatingChart</a>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">SeatingChart</a>
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('main.index') }}">Home</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_anonymous %}
-                <li><a href="{{ url_for('register') }}">Sign Up</a></li>
-                <li><a href="{{ url_for('login') }}">Login</a></li>
+                <li><a href="{{ url_for('auth.register') }}">Sign Up</a></li>
+                <li><a href="{{ url_for('auth.login') }}">Login</a></li>
                 {% else %}
-                <li><a href="{{ url_for('user', username=current_user.username) }}">Profile - {{ current_user.username
-                        }}</a></li>
-                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile - {{current_user.username}}</a></li>
+                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                
                 {% endif %}
             </ul>
         </div>

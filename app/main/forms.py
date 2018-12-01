@@ -1,45 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import (
-    StringField,
-    TextAreaField,
-    PasswordField,
-    BooleanField,
-    IntegerField,
-    SubmitField,
-)
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms import TextAreaField, IntegerField, SubmitField
+from wtforms.validators import ValidationError
 from app.models import User
 
 import re
-
-
-class LoginForm(FlaskForm):
-    email = StringField("Email", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[DataRequired()])
-    remember_me = BooleanField("Remember Me")
-    submit = SubmitField("Sign In")
-
-
-class RegistrationForm(FlaskForm):
-    username = StringField("User Name", validators=[DataRequired()])
-    firstname = StringField("First Name", validators=[DataRequired()])
-    lastname = StringField("Last Name", validators=[DataRequired()])
-    email = StringField("Email", validators=[DataRequired(), Email()])
-    password = PasswordField("Password", validators=[DataRequired()])
-    password2 = PasswordField(
-        "Repeat Password", validators=[DataRequired(), EqualTo("password")]
-    )
-    submit = SubmitField("Register")
-
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user is not None:
-            raise ValidationError("Please use a different username.")
-
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user is not None:
-            raise ValidationError("Please use a different email address.")
 
 
 class SeatingChartForm(FlaskForm):
@@ -84,12 +48,9 @@ class SeatingChartForm(FlaskForm):
         indiv = re.split("[,;\n\r]+", individuals.data)
         if len(indiv) <= 1:
             raise ValidationError("Please enter more than one individual.")
-        
-        if not any(sep in individuals.data for sep in [",", ";", "\n", "\r"]):
-            raise ValidationError(
-                "Please separate individuals on new lines."
-            )
 
+        if not any(sep in individuals.data for sep in [",", ";", "\n", "\r"]):
+            raise ValidationError("Please separate individuals on new lines.")
 
     def validate_together(self, together):
         individuals = re.split("[,;\n\r]+", self.individuals.data)

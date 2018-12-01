@@ -17,6 +17,16 @@
         <textarea name="groups" rows="10" cols="54">
 {{ output_text }}
         </textarea>
+        <br>
+        {% if not current_user.is_anonymous %}
+            <form action="">
+                <input type="submit" value="Save">
+            </form>
+            <br>
+            <form action="">
+                <input type="submit" value="Load">
+            </form>
+        {% endif %}
     </div>
 </div>
 
