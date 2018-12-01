@@ -1,37 +1,55 @@
-<html>
+{% extends 'bootstrap/base.html' %}
 
-<head>
-    {% if title %}
-    <title>{{ title }} - SeatingChart.io</title>
-    {% else %}
-    <title>SeatingChart.io</title>
-    {% endif %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
+{% block styles -%}
+{{super()}}
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+{% endblock styles %}
 
-<body>
-    <div>
-        SeatingChart.io:
-        <a href="{{ url_for('index') }}">Home</a>        
-        {% if current_user.is_anonymous %}
-        <a href="{{ url_for('register') }}">Sign Up</a>
-        <a href="{{ url_for('login') }}">Login</a>
-        {% else %}
-        <a href="{{ url_for('user', username=current_user.username) }}">Profile</a> 
-        <a href="{{ url_for('logout') }}">Logout</a>
-        {% endif %}
+{% block title %}
+{% if title %}{{ title }} - SeatingChart.io{% else %}SeatingChart.io{% endif %}
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+                aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ url_for('index') }}">SeatingChart</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_anonymous %}
+                <li><a href="{{ url_for('register') }}">Sign Up</a></li>
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+                {% else %}
+                <li><a href="{{ url_for('user', username=current_user.username) }}">Profile - {{ current_user.username
+                        }}</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
-    <hr>
-    <!-- {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <ul>
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    {% endwith %} -->
-    {% block content %}{% endblock %}
-</body>
+</nav>
+{% endblock %}
 
-</html>
+{% block content %}
+<div class="container">
+    {% block app_content %}{% endblock %}
+</div>
+
+{{super()}}
+{%- block footer %}
+<br>
+<hr>
+<footer>&copy; 2018 Ryan Opel - <a href="https://github.com/opelr/seatingchart"><i class="fab fa-github"></i></a></footer>
+{%- endblock footer %}
+{% endblock %}

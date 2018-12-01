@@ -1,58 +1,23 @@
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
-{% block content %}
+{% block app_content %}
 
 {% if not current_user.is_anonymous %}
 <h1>Hello, {{ current_user.firstname }}!</h1>
 {% endif %}
 
-
-<div class="left">
-    <form action="" method="post">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.individuals.label }}<br>
-            {{ form.individuals(size=32) }}<br>
-            {% for error in form.individuals.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.together.label }}<br>
-            {{ form.together(size=32) }}<br>
-            {% for error in form.together.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.separate.label }}<br>
-            {{ form.separate(size=32) }}<br>
-            {% for error in form.separate.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.max_groups.label }}<br>
-            {{ form.max_groups(size=32) }}<br>
-            {% for error in form.max_groups.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.max_indiv.label }}<br>
-            {{ form.max_indiv(size=32) }}<br>
-            {% for error in form.max_indiv.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
-</div>
-<div class="right">
-    Groups <br>
-    <textarea rows="10" cols="54">
-        {{ output_text }}
-    </textarea>
+<div class="row">
+    <div class="col-md-4">
+        {{ wtf.quick_form(form) }}
+    </div>
+    <div class="col-md-4">
+        <label class="control-label" for="groups">Groups</label>
+        <br>
+        <textarea name="groups" rows="10" cols="54">
+            {{ output_text }}
+        </textarea>
+    </div>
 </div>
 
 {% endblock %}
