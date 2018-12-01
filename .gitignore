@@ -69,6 +69,9 @@ db.sqlite3
 
 # Flask stuff:
 instance/
+migrations/
+*.db
+logs/
 
 # Scrapy stuff:
 .scrapy
@@ -121,57 +124,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-### Python ###
-# Byte-compiled / optimized / DLL files
-
-# C extensions
-
-# Distribution / packaging
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-
-# Installer logs
-
-# Unit test / coverage reports
-
-# Translations
-
-# Django stuff:
-
-# Flask stuff:
-migrations/*
-*.db
-
-# Scrapy stuff:
-
-# Sphinx documentation
-
-# PyBuilder
-
-# Jupyter Notebook
-
-# IPython
-
-# pyenv
-
-# celery beat schedule file
-
-# SageMath parsed files
-
-# Environments
-
-# Spyder project settings
-
-# Rope project settings
-
-# mkdocs documentation
-
-# mypy
-
-# Pyre type checker
 
 ### Python Patch ###
 .venv/

@@ -8,6 +8,7 @@ application.
 
 import random
 from itertools import chain
+import re
 
 
 def create_seating_chart(
@@ -16,7 +17,6 @@ def create_seating_chart(
     apart=None,
     max_size=float("Inf"),
     max_tables=float("Inf"),
-    total_indiv=None,
 ):
     """Returns nested list of names that meet grouping parameters
 
@@ -26,7 +26,6 @@ def create_seating_chart(
         apart (list, optional): Defaults to None. List of pairwise explicit separated individuals.
         max_size (int, optional): Defaults to float("Inf"). Maximum size for a single group.
         max_tables (int, optional): Defaults to float("Inf"). Maximum number of groups.
-        total_indiv (int, optional): Defaults to None. Generates labels for students, but will not work with `together` or `apart`. 
 
     Returns:
         list: Nested list with entries for each group
@@ -39,10 +38,6 @@ def create_seating_chart(
         >>> create_seating_chart(names, together, apart, max_size=max_size)
         [['e', 'b', 'a', 'c'], ['g', 'd', 'f', 'j'], ['k', 'h', 'i']]
     """
-    # Handle input variables before moving on to function logic
-    if names == [] and total_indiv is not None and together is None and apart is None:
-        names = list(map(str, range(total_indiv)))
-
     # Initialize namespace variables
     remaining = names.copy()
     random.shuffle(remaining)
@@ -187,6 +182,9 @@ def _separate_individuals(groups: list, apart: list) -> list:
 
     chart = groups.copy()
 
+    if apart is None:
+        return chart
+
     for pair in apart:
         item_1, item_2 = pair
         pos_1, pos_2 = list(map(lambda i: _get_nested_position(i, chart), pair))
@@ -243,3 +241,23 @@ def _balance_nested_list(
         nested.append([item])
     else:
         nested[min_index] += item
+
+
+def handle_form_individuals(individuals):
+    return list(re.split("[,;\n\r]+", individuals))
+
+
+def handle_form_groupings(grouping):
+    if grouping is None or grouping == "":
+        return None
+
+    nest = [i.split(",") for i in grouping.split("\n\r")]
+    return [[i.strip() for i in j] for j in nest]
+
+
+def handle_form_integer(i):
+    return float("Inf") if i == 0 else i
+
+
+def render_output(out: list):
+    return "\n\r\n\r".join([", ".join(i) for i in out])

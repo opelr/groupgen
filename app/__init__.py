@@ -19,8 +19,6 @@ migrate = Migrate(app, db)
 login = LoginManager(app)
 login.login_view = "login"
 
-from .backend import create_seating_chart
-
 from app import routes, models, errors
 
 if not app.debug:

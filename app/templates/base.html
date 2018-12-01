@@ -6,6 +6,7 @@
     {% else %}
     <title>SeatingChart.io</title>
     {% endif %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
@@ -21,7 +22,7 @@
         {% endif %}
     </div>
     <hr>
-    {% with messages = get_flashed_messages() %}
+    <!-- {% with messages = get_flashed_messages() %}
     {% if messages %}
     <ul>
         {% for message in messages %}
@@ -29,7 +30,7 @@
         {% endfor %}
     </ul>
     {% endif %}
-    {% endwith %}
+    {% endwith %} -->
     {% block content %}{% endblock %}
 </body>
 

@@ -3,14 +3,38 @@ from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
 from app import app, db
-from app.forms import LoginForm, RegistrationForm
+from app.forms import LoginForm, RegistrationForm, SeatingChartForm
 from app.models import User
+from app.backend import (
+    create_seating_chart,
+    handle_form_individuals,
+    handle_form_groupings,
+    handle_form_integer,
+    render_output,
+)
 
 
-@app.route("/")
-@app.route("/index")
+@app.route("/", methods=["GET", "POST"])
+@app.route("/index", methods=["GET", "POST"])
 def index():
-    return render_template("index.html", title="Home")
+    output_text = ""
+    form = SeatingChartForm()
+    if form.validate_on_submit():
+        indiv = handle_form_individuals(form.individuals.data)
+        together = handle_form_groupings(form.together.data)
+        separate = handle_form_groupings(form.separate.data)
+        max_groups = handle_form_integer(form.max_groups.data)
+        max_indiv = handle_form_integer(form.max_indiv.data)
+
+        seating_chart = create_seating_chart(
+            names=indiv,
+            together=together,
+            apart=separate,
+            max_size=max_indiv,
+            max_tables=max_groups,
+        )
+        output_text = render_output(seating_chart)
+    return render_template("index.html", title="Home", form=form, output_text=output_text)
 
 
 @app.route("/login", methods=["GET", "POST"])
