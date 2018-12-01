@@ -23,6 +23,23 @@ class Backend_Test(unittest.TestCase):
         chart = app.backend._separate_individuals(groups, apart)
         assert chart == [["a", "b", "c"], ["d", "e", "f"], ["g"]]
 
+    def test_append(self):
+        chart = [["a", "b", "c"], ["d", "e"]]
+        apart = [["c", "d"], ["f", "e"], ["f", "g"], ["f", "h"], ["b", "i"]]
+        max_size = 4
+
+        app.backend._append_item("f", chart, apart, max_size)
+        assert chart == [["a", "b", "c", "f"], ["d", "e"]]
+
+        app.backend._append_item("g", chart, apart, max_size)
+        assert chart == [["a", "b", "c", "f"], ["d", "e", "g"]]
+
+        app.backend._append_item("h", chart, apart, max_size)
+        assert chart == [["a", "b", "c", "f"], ["d", "e", "g", "h"]]
+
+        app.backend._append_item("i", chart, apart, max_size)
+        assert chart == [["a", "b", "c", "f"], ["d", "e", "g", "h"], ["i"]]
+
     def test_balance_nested_list(self):
         value = "1"
 
@@ -40,21 +57,20 @@ class Backend_Test(unittest.TestCase):
 
     def test_create_seating_chart(self):
         names = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"]
-        together = [["a", "b"], ["a", "e"], ["d", "g"], ["f", "g"]]
+        together = [["a", "b"], ["a", "e"], ["b", "e"], ["f", "g"]]
         apart = [["a", "f"], ["d", "g"], ["a", "g"]]
         max_tables = float("Inf")
-        
-        max_size_1 = float("Inf")
-        chart_1 = app.backend.create_seating_chart(names, together, apart)
-        assert len(chart_1) <= max_tables
-        assert max([len(i) for i in chart_1]) <= max_size_1
 
-        max_size_2 = 4
-        chart_2 = app.backend.create_seating_chart(names, together, apart, max_size=max_size_2)
+        chart_1 = app.backend.create_seating_chart(names, together.copy(), apart)
+        assert len(chart_1) <= max_tables
+        assert max([len(i) for i in chart_1]) <= float("Inf")
+
+        ms_2 = 4
+        together = [["a", "b"], ["a", "e"], ["b", "e"], ["f", "g"]]
+        chart_2 = app.backend.create_seating_chart(names, together.copy(), apart, max_size=ms_2)
         assert len(chart_2) <= max_tables
-        assert max([len(i) for i in chart_2]) <= max_size_2
-    
-    
+        assert max([len(i) for i in chart_2]) <= ms_2
+
     def test_handle_form_individuals(self):
         inpt = "A\n\rB,C;D\nE\rF"
         output = ["A", "B", "C", "D", "E", "F"]

@@ -81,20 +81,20 @@ class SeatingChartForm(FlaskForm):
     submit = SubmitField("Generate")
 
     def validate_individuals(self, individuals):
+        indiv = re.split("[,;\n\r]+", individuals.data)
+        if len(indiv) <= 1:
+            raise ValidationError("Please enter more than one individual.")
+        
         if not any(sep in individuals.data for sep in [",", ";", "\n", "\r"]):
             raise ValidationError(
-                "Please separate individuals with commas (,) or semicolons (;)."
+                "Please separate individuals on new lines."
             )
 
-        individuals = re.split("[,;\n\r]+", individuals.data)
-        # individuals = [i.rstrip() for i in individuals.data.split(",")]
-        if len(individuals) <= 1:
-            raise ValidationError("Please enter more than one individual.")
 
     def validate_together(self, together):
         individuals = re.split("[,;\n\r]+", self.individuals.data)
         together = re.split("[,;\n\r]+", together.data)
-        together_indiv = list(set(together))
+        together_indiv = list(set([i.strip() for i in together]))
         all_present = all([i in individuals for i in together_indiv])
 
         if not all_present:
@@ -103,7 +103,7 @@ class SeatingChartForm(FlaskForm):
     def validate_separate(self, separate):
         individuals = list(filter(None, re.split("[,;\n\r]+", self.individuals.data)))
         separate = filter(None, re.split("[,;\n\r]+", separate.data))
-        separate_indiv = list(set(separate))
+        separate_indiv = list(set([i.strip() for i in separate]))
         all_present = all([i in individuals for i in separate_indiv])
 
         if not all_present:

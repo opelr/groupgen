@@ -33,7 +33,7 @@ def create_seating_chart(
     Example:
         >>> names = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"]
         >>> together = [["a", "b"], ["a", "e"], ["d", "g"], ["f", "g"]]
-        >>> apart = [["a", "f"], ["d", "g"], ["a", "g"]]
+        >>> apart = [["a", "f"], ["a", "g"]]
         >>> max_size = 4
         >>> create_seating_chart(names, together, apart, max_size=max_size)
         [['e', 'b', 'a', 'c'], ['g', 'd', 'f', 'j'], ['k', 'h', 'i']]
@@ -44,14 +44,22 @@ def create_seating_chart(
 
     if together is not None:
         groups = _create_groups(together)
+
         if apart is not None:
-            groups_separated = _separate_individuals(groups, apart)
+            if any([i in apart for i in together]):
+                raise ValueError("Cannot have overlap in `together` and `apart`")
+            groups_separated = _separate_individuals(groups, apart, max_size)
         else:
             groups_separated = groups
     else:
         groups_separated = []
+    
+    if not groups_separated == []:
+        largest_group = max([len(g) for g in groups_separated])
+        if largest_group > max_size:
+            raise ValueError("Group too big")
 
-    grouped_students = list(chain(*groups_separated))
+    grouped_students = list(set(chain(*groups_separated)))
     for student in grouped_students:
         remaining.remove(student)
     for student in remaining:
@@ -120,13 +128,14 @@ def _get_nested_position(var: str, chart: list):
         raise KeyError("Value occurrs more than once")
 
 
-def _append_item(var: str, chart: list, apart: list):
+def _append_item(var: str, chart: list, apart: list, max_size):
     """Append var to chart, verifying that it obeys groups and separation rules
 
     Args:
         var (str): Variable being appended
         chart (list): Nested list
         apart (list): List of pairwise separation rules
+        max_size [(type)]: [descrition]
     """
 
     appended = False
@@ -147,6 +156,8 @@ def _append_item(var: str, chart: list, apart: list):
                     break
 
             if kosher:
+                if len(group) >= max_size:
+                    break
                 chart[i] += var
                 appended = True
                 break
@@ -158,12 +169,13 @@ def _append_item(var: str, chart: list, apart: list):
         chart.append([var])
 
 
-def _separate_individuals(groups: list, apart: list) -> list:
+def _separate_individuals(groups: list, apart: list, max_size=float("Inf")) -> list:
     """Explicit handling of separated individuals
 
     Args:
         groups (list): Nested list representing groups
         apart (list): Nested list of explicit pairwise separations
+        max_size [(type)]: [descrition]
 
     Returns:
         list: Nested list of groups
@@ -203,12 +215,12 @@ def _separate_individuals(groups: list, apart: list) -> list:
             (pos_1 is not None) ^ (pos_2 is not None)
         ):
             remaining_item = item_1 if pos_1 is None else item_2
-            _append_item(remaining_item, chart, apart)
+            _append_item(remaining_item, chart, apart, max_size)
 
         # 4. Both remaining
         if pos_1 is None and pos_2 is None:
-            _append_item(item_1, chart, apart)
-            _append_item(item_2, chart, apart)
+            _append_item(item_1, chart, apart, max_size)
+            _append_item(item_2, chart, apart, max_size)
 
     return chart
 
@@ -231,13 +243,15 @@ def _balance_nested_list(
     num_tables = len(nested)
     min_index = nested_size.index(min(nested_size))
 
-    if num_tables >= max_num_tables and max_nested_size >= max_size:
+    if max_nested_size > max_size:
+        raise ValueError("FAILFAIL")
+    if num_tables > max_num_tables and max_nested_size > max_size:
         raise ValueError(
             "Number of tables is greater than value specified by `max_num_tables` "
             "and group size is greater than value specified by `max_size`"
         )
 
-    if all_same_len and max_nested_size >= max_size:
+    if all_same_len and (max_nested_size >= max_size):
         nested.append([item])
     else:
         nested[min_index] += item
@@ -267,7 +281,7 @@ def handle_form_groupings(grouping: str):
     if grouping is None or grouping == "":
         return None
 
-    nest = [i.split(",") for i in grouping.split("\n\r")]
+    nest = [i.split(",") for i in re.split("[\n\r]+", grouping)]
     return [[i.strip() for i in j] for j in nest]
 
 
@@ -292,4 +306,4 @@ def render_output(out: list):
     Returns:
         str: Prettified output for presentation to user
     """
-    return "\n\r\n\r".join([", ".join(i) for i in out])
+    return "\n\r".join([", ".join(i) for i in out])
