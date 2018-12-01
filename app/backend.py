@@ -243,11 +243,27 @@ def _balance_nested_list(
         nested[min_index] += item
 
 
-def handle_form_individuals(individuals):
+def handle_form_individuals(individuals: str):
+    """Render SeatingChartForm.individuals useable for `create_seating_chart`
+
+    Args:
+        individuals (str): SeatingChartForm.individuals.data
+
+    Returns:
+        list: Form data split into a list
+    """
     return list(re.split("[,;\n\r]+", individuals))
 
 
-def handle_form_groupings(grouping):
+def handle_form_groupings(grouping: str):
+    """Render SeatingChartForm.together and .separate useable for `create_seating_chart`
+    
+    Args:
+        grouping (str): SeatingChartForm.[together|separate].data
+    
+    Returns:
+        list: Form data split into a nested list
+    """
     if grouping is None or grouping == "":
         return None
 
@@ -255,9 +271,25 @@ def handle_form_groupings(grouping):
     return [[i.strip() for i in j] for j in nest]
 
 
-def handle_form_integer(i):
+def handle_form_integer(i: int):
+    """Render SeatingChartForm.max_indiv and .max_groups useable for `create_seating_chart`
+    
+    Args:
+        i (int): SeatingChartForm.[max_indiv|max_groups].data
+    
+    Returns:
+        int: Returns inf if input is 0, else returns input
+    """
     return float("Inf") if i == 0 else i
 
 
 def render_output(out: list):
+    """Pretty's `create_seating_chart` output
+    
+    Args:
+        out (list): Output of `create_seating_chart`
+    
+    Returns:
+        str: Prettified output for presentation to user
+    """
     return "\n\r\n\r".join([", ".join(i) for i in out])
