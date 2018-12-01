@@ -257,10 +257,10 @@ def handle_form_individuals(individuals: str):
 
 def handle_form_groupings(grouping: str):
     """Render SeatingChartForm.together and .separate useable for `create_seating_chart`
-    
+
     Args:
         grouping (str): SeatingChartForm.[together|separate].data
-    
+
     Returns:
         list: Form data split into a nested list
     """
@@ -273,10 +273,10 @@ def handle_form_groupings(grouping: str):
 
 def handle_form_integer(i: int):
     """Render SeatingChartForm.max_indiv and .max_groups useable for `create_seating_chart`
-    
+
     Args:
         i (int): SeatingChartForm.[max_indiv|max_groups].data
-    
+
     Returns:
         int: Returns inf if input is 0, else returns input
     """
@@ -285,10 +285,10 @@ def handle_form_integer(i: int):
 
 def render_output(out: list):
     """Pretty's `create_seating_chart` output
-    
+
     Args:
         out (list): Output of `create_seating_chart`
-    
+
     Returns:
         str: Prettified output for presentation to user
     """

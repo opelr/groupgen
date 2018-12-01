@@ -34,7 +34,9 @@ def index():
             max_tables=max_groups,
         )
         output_text = render_output(seating_chart)
-    return render_template("index.html", title="Home", form=form, output_text=output_text)
+    return render_template(
+        "index.html", title="Home", form=form, output_text=output_text
+    )
 
 
 @app.route("/login", methods=["GET", "POST"])
