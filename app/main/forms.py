@@ -77,3 +77,10 @@ class SeatingChartForm(FlaskForm):
     def validate_max_indiv(self, max_indiv):
         if max_indiv.data < 0:
             raise ValidationError("Must be zero or positive number")
+
+class SaveForm(FlaskForm):
+    submit = SubmitField("Save")
+
+
+class LoadForm(FlaskForm):
+    submit = SubmitField("Load")
