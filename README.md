@@ -1,6 +1,6 @@
 # Seating Chart
 
-[![Build Status](https://travis-ci.com/opelr/seating-chart.svg?branch=master)](https://travis-ci.com/opelr/seating-chart)
+[![Build Status](https://travis-ci.com/opelr/seatingchart.svg?branch=master)](https://travis-ci.com/opelr/seating-chart)
 
 Web application to help educators create seating charts and groups!
 
