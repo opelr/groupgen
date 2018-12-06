@@ -12,6 +12,9 @@ class Backend_Test(unittest.TestCase):
         groups = app.main.backend._create_groups([["a", "b"], ["a", "d"]])
         assert all([i in groups[0] for i in ["a", "b", "d"]])
 
+        groups = app.main.backend._create_groups(None)
+        assert groups == []
+
     def test_separate_individuals(self):
         groups = [["a", "b", "c"], ["d", "e", "f"]]
         apart = [["a", "f"], ["d", "g"]]
@@ -23,7 +26,12 @@ class Backend_Test(unittest.TestCase):
         chart = app.main.backend._separate_individuals(groups, apart)
         assert chart == [["a", "b", "c"], ["d", "e", "f"], ["g"]]
 
-    def test_append(self):
+        groups = []
+        apart = None
+        chart = app.main.backend._separate_individuals(groups, apart)
+        assert chart == []
+
+    def test_append_item(self):
         chart = [["a", "b", "c"], ["d", "e"]]
         apart = [["c", "d"], ["f", "e"], ["f", "g"], ["f", "h"], ["b", "i"]]
         max_size = 4
@@ -52,7 +60,7 @@ class Backend_Test(unittest.TestCase):
         assert nested_2 == [["0", "0", "0"], ["0", "0", "0"], ["0", "0", "0"], ["1"]]
 
         nested_3 = [["0", "0", "0"], ["0", "0", "0"], ["0", "0", "0"]]
-        app.main.backend._balance_nested_list(nested_3, value, max_num_tables=3)
+        app.main.backend._balance_nested_list(nested_3, value, num_groups=3)
         assert nested_3 == [["0", "0", "0", "1"], ["0", "0", "0"], ["0", "0", "0"]]
 
     def test_create_seating_chart(self):
@@ -70,6 +78,10 @@ class Backend_Test(unittest.TestCase):
         chart_2 = app.main.backend.create_seating_chart(names, together.copy(), apart, max_size=ms_2)
         assert len(chart_2) <= max_tables
         assert max([len(i) for i in chart_2]) <= ms_2
+
+        chart_3 = app.main.backend.create_seating_chart(names, None, None, max_size=4, num_groups=3)
+        assert len(chart_3) == 3
+        assert max([len(i) for i in chart_3]) <= 4
 
     def test_handle_form_individuals(self):
         inpt = "A\n\rB,C;D\nE\rF"

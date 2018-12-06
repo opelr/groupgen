@@ -16,7 +16,7 @@ def create_seating_chart(
     together=None,
     apart=None,
     max_size=float("Inf"),
-    max_tables=float("Inf"),
+    num_groups=float("Inf"),
 ):
     """Returns nested list of names that meet grouping parameters
 
@@ -25,7 +25,7 @@ def create_seating_chart(
         together (list, optional): Defaults to None. List of pairwise explicit grouped individuals.
         apart (list, optional): Defaults to None. List of pairwise explicit separated individuals.
         max_size (int, optional): Defaults to float("Inf"). Maximum size for a single group.
-        max_tables (int, optional): Defaults to float("Inf"). Maximum number of groups.
+        num_groups (int, optional): Defaults to float("Inf"). Number of groups.
 
     Returns:
         list: Nested list with entries for each group
@@ -42,38 +42,29 @@ def create_seating_chart(
     remaining = names.copy()
     random.shuffle(remaining)
 
-    if together is not None:
-        groups = _create_groups(together)
+    if apart is not None and together is not None and any([i in apart for i in together]):
+        raise ValueError("Cannot have overlap in `together` and `apart`")
 
-        if apart is not None:
-            if any([i in apart for i in together]):
-                raise ValueError("Cannot have overlap in `together` and `apart`")
-            groups_separated = _separate_individuals(groups, apart, max_size)
-        else:
-            groups_separated = groups
-    else:
-        groups_separated = []
+    groups = _create_groups(together)
+    groups_sep = _separate_individuals(groups, apart, max_size)
 
-    if not groups_separated == []:
-        largest_group = max([len(g) for g in groups_separated])
-        if largest_group > max_size:
+    if groups_sep != []:
+        if max_size < max([len(g) for g in groups_sep]):
             raise ValueError("Group too big")
 
-    grouped_students = list(set(chain(*groups_separated)))
+    grouped_students = list(set(chain(*groups_sep)))
     for student in grouped_students:
         remaining.remove(student)
     for student in remaining:
-        _balance_nested_list(
-            groups_separated, student, max_size=max_size, max_num_tables=max_tables
-        )
+        _balance_nested_list(groups_sep, student, max_size=max_size, num_groups=num_groups)
 
-    if len(groups_separated) > max_tables:
+    if len(groups_sep) > num_groups:
         raise ValueError(
             "Group definitions do not allow for the ..."\
             "Please change the number of groups or the group/separates definitions"
         )
 
-    return groups_separated
+    return groups_sep
 
 
 def _create_groups(together: list):
@@ -91,6 +82,8 @@ def _create_groups(together: list):
         [["a", "b", "e"], ["d", "g"]]
     """
     groups = []
+    if together is None:
+        return groups
 
     for pair in together:
         if groups == []:
@@ -232,7 +225,7 @@ def _separate_individuals(groups: list, apart: list, max_size=float("Inf")) -> l
 
 
 def _balance_nested_list(
-    nested: list, item: str, max_size=float("Inf"), max_num_tables=float("Inf")
+    nested: list, item: str, max_size=float("Inf"), num_groups=float("Inf")
 ):
     """Balances a nested list, respecting max size and number of internal lists
 
@@ -240,24 +233,29 @@ def _balance_nested_list(
         nested (list): Nested list
         item (str): Item to be added
         max_size (int, optional): Defaults to float("Inf"). Maximum size for a single group.
-        max_num_tables (int, optional): Defaults to float("Inf"). Maximum number of groups.
+        num_groups (int, optional): Defaults to float("Inf"). Maximum number of groups.
     """
+    if nested == []:
+        nested.append([item])
+        return
 
     nested_size = [len(i) for i in nested]
     all_same_len = len(set(nested_size)) == 1
     max_nested_size = max(nested_size)
-    num_tables = len(nested)
+    num_current_groups = len(nested)
     min_index = nested_size.index(min(nested_size))
 
     if max_nested_size > max_size:
         raise ValueError("FAILFAIL")
-    if num_tables > max_num_tables and max_nested_size > max_size:
+    if num_current_groups > num_groups and max_nested_size > max_size:
         raise ValueError(
-            "Number of tables is greater than value specified by `max_num_tables` "
+            "Number of tables is greater than value specified by `num_groups` "
             "and group size is greater than value specified by `max_size`"
         )
 
-    if all_same_len and (max_nested_size >= max_size):
+    if num_groups != float("Inf") and num_current_groups < num_groups:
+        nested.append([item])
+    elif all_same_len and (max_nested_size >= max_size):
         nested.append([item])
     else:
         nested[min_index] += item

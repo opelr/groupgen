@@ -26,17 +26,21 @@ def index():
         indiv = handle_form_individuals(form.individuals.data)
         together = handle_form_groupings(form.together.data)
         separate = handle_form_groupings(form.separate.data)
-        max_groups = handle_form_integer(form.max_groups.data)
-        max_indiv = handle_form_integer(form.max_indiv.data)
+        num_groups = handle_form_integer(form.num_groups.data)
+        max_size = handle_form_integer(form.max_size.data)
 
         seating_chart = create_seating_chart(
             names=indiv,
             together=together,
             apart=separate,
-            max_size=max_indiv,
-            max_tables=max_groups,
+            max_size=max_size,
+            num_groups=num_groups,
         )
         output_text = render_output(seating_chart)
+    if saveform.validate_on_submit():
+        if output_text != "":
+            print("X")
+
     return render_template(
         "index.html",
         title="Home",
