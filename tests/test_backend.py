@@ -9,22 +9,22 @@ class Backend_Test(unittest.TestCase):
         super().__init__(methodName)
 
     def test_create_groups(self):
-        groups = app.main.backend._create_groups([["a", "b"], ["a", "d"]])
-        assert all([i in groups[0] for i in ["a", "b", "d"]])
+        groups = app.main.backend._create_groups([["Amy", "Bob"], ["Amy", "Dan"]])
+        assert all([i in groups[0] for i in ["Amy", "Bob", "Dan"]])
 
         groups = app.main.backend._create_groups(None)
         assert groups == []
 
     def test_separate_individuals(self):
-        groups = [["a", "b", "c"], ["d", "e", "f"]]
-        apart = [["a", "f"], ["d", "g"]]
+        groups = [["Amy", "Bob", "Carly"], ["Dan", "Eesha", "Frank"]]
+        apart = [["Amy", "Frank"], ["Dan", "Grace"]]
         chart = app.main.backend._separate_individuals(groups, apart)
-        assert chart == [["a", "b", "c", "g"], ["d", "e", "f"]]
+        assert chart == [["Amy", "Bob", "Carly", "Grace"], ["Dan", "Eesha", "Frank"]]
 
-        groups = [["a", "b", "c"], ["d", "e", "f"]]
-        apart = [["a", "f"], ["d", "g"], ["a", "g"]]
+        groups = [["Amy", "Bob", "Carly"], ["Dan", "Eesha", "Frank"]]
+        apart = [["Amy", "Frank"], ["Dan", "Grace"], ["Amy", "Grace"]]
         chart = app.main.backend._separate_individuals(groups, apart)
-        assert chart == [["a", "b", "c"], ["d", "e", "f"], ["g"]]
+        assert chart == [["Amy", "Bob", "Carly"], ["Dan", "Eesha", "Frank"], ["Grace"]]
 
         groups = []
         apart = None
@@ -32,21 +32,34 @@ class Backend_Test(unittest.TestCase):
         assert chart == []
 
     def test_append_item(self):
-        chart = [["a", "b", "c"], ["d", "e"]]
-        apart = [["c", "d"], ["f", "e"], ["f", "g"], ["f", "h"], ["b", "i"]]
+        chart = [["Amy", "Bob", "Carly"], ["Dan", "Eesha"]]
+        apart = [
+            ["Carly", "Dan"],
+            ["Frank", "Eesha"],
+            ["Frank", "Grace"],
+            ["Frank", "Henry"],
+            ["Bob", "Immanuel"],
+        ]
         max_size = 4
 
-        app.main.backend._append_item("f", chart, apart, max_size)
-        assert chart == [["a", "b", "c", "f"], ["d", "e"]]
+        app.main.backend._append_item("Frank", chart, apart, max_size)
+        assert chart == [["Amy", "Bob", "Carly", "Frank"], ["Dan", "Eesha"]]
 
-        app.main.backend._append_item("g", chart, apart, max_size)
-        assert chart == [["a", "b", "c", "f"], ["d", "e", "g"]]
+        app.main.backend._append_item("Grace", chart, apart, max_size)
+        assert chart == [["Amy", "Bob", "Carly", "Frank"], ["Dan", "Eesha", "Grace"]]
 
-        app.main.backend._append_item("h", chart, apart, max_size)
-        assert chart == [["a", "b", "c", "f"], ["d", "e", "g", "h"]]
+        app.main.backend._append_item("Henry", chart, apart, max_size)
+        assert chart == [
+            ["Amy", "Bob", "Carly", "Frank"],
+            ["Dan", "Eesha", "Grace", "Henry"],
+        ]
 
-        app.main.backend._append_item("i", chart, apart, max_size)
-        assert chart == [["a", "b", "c", "f"], ["d", "e", "g", "h"], ["i"]]
+        app.main.backend._append_item("Immanuel", chart, apart, max_size)
+        assert chart == [
+            ["Amy", "Bob", "Carly", "Frank"],
+            ["Dan", "Eesha", "Grace", "Henry"],
+            ["Immanuel"],
+        ]
 
     def test_balance_nested_list(self):
         value = "1"
@@ -64,9 +77,26 @@ class Backend_Test(unittest.TestCase):
         assert nested_3 == [["0", "0", "0", "1"], ["0", "0", "0"], ["0", "0", "0"]]
 
     def test_create_seating_chart(self):
-        names = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"]
-        together = [["a", "b"], ["a", "e"], ["b", "e"], ["f", "g"]]
-        apart = [["a", "f"], ["d", "g"], ["a", "g"]]
+        names = [
+            "Amy",
+            "Bob",
+            "Carly",
+            "Dan",
+            "Eesha",
+            "Frank",
+            "Grace",
+            "Henry",
+            "Immanuel",
+            "James",
+            "Kevin",
+        ]
+        together = [
+            ["Amy", "Bob"],
+            ["Amy", "Eesha"],
+            ["Bob", "Eesha"],
+            ["Frank", "Grace"],
+        ]
+        apart = [["Amy", "Frank"], ["Dan", "Grace"], ["Amy", "Grace"]]
         max_tables = float("Inf")
 
         chart_1 = app.main.backend.create_seating_chart(names, together.copy(), apart)
@@ -74,26 +104,35 @@ class Backend_Test(unittest.TestCase):
         assert max([len(i) for i in chart_1]) <= float("Inf")
 
         ms_2 = 4
-        together = [["a", "b"], ["a", "e"], ["b", "e"], ["f", "g"]]
-        chart_2 = app.main.backend.create_seating_chart(names, together.copy(), apart, max_size=ms_2)
+        together = [
+            ["Amy", "Bob"],
+            ["Amy", "Eesha"],
+            ["Bob", "Eesha"],
+            ["Frank", "Grace"],
+        ]
+        chart_2 = app.main.backend.create_seating_chart(
+            names, together.copy(), apart, max_size=ms_2
+        )
         assert len(chart_2) <= max_tables
         assert max([len(i) for i in chart_2]) <= ms_2
 
-        chart_3 = app.main.backend.create_seating_chart(names, None, None, max_size=4, num_groups=3)
+        chart_3 = app.main.backend.create_seating_chart(
+            names, None, None, max_size=4, num_groups=3
+        )
         assert len(chart_3) == 3
         assert max([len(i) for i in chart_3]) <= 4
 
     def test_handle_form_individuals(self):
-        inpt = "A\n\rB,C;D\nE\rF"
-        output = ["A", "B", "C", "D", "E", "F"]
+        inpt = "Amy\n\rBob,Carly;Dan\nEesha\rFrank"
+        output = ["Amy", "Bob", "Carly", "Dan", "Eesha", "Frank"]
         assert app.main.backend.handle_form_individuals(inpt) == output
 
     def test_handle_form_groupings(self):
         assert app.main.backend.handle_form_groupings(None) is None
         assert app.main.backend.handle_form_groupings("") is None
 
-        inpt = "A,B\n\rC,D"
-        output = [["A", "B"], ["C", "D"]]
+        inpt = "Amy,Bob\n\rCarly,Dan"
+        output = [["Amy", "Bob"], ["Carly", "Dan"]]
         assert app.main.backend.handle_form_groupings(inpt) == output
 
     def test_handle_form_integer(self):
@@ -101,6 +140,6 @@ class Backend_Test(unittest.TestCase):
         assert app.main.backend.handle_form_integer(1) == 1
 
     def test_render_output(self):
-        inpt = [["A", "B"], ["C", "D"]]
-        output = "A, B\n\rC, D"
+        inpt = [["Amy", "Bob"], ["Carly", "Dan"]]
+        output = "Amy, Bob\n\rCarly, Dan"
         assert app.main.backend.render_output(inpt) == output

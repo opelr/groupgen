@@ -146,9 +146,9 @@ def _append_item(var: str, chart: list, apart: list, max_size):
                 if var not in a_pair:
                     continue
 
-                a_pair = a_pair.copy()
-                a_pair.remove(var)
-                other_var = a_pair[0]
+                b_pair = a_pair.copy()
+                b_pair.remove(var)
+                other_var = b_pair[0]
 
                 if other_var in group:
                     kosher = False
@@ -157,7 +157,7 @@ def _append_item(var: str, chart: list, apart: list, max_size):
             if kosher:
                 if len(group) >= max_size:
                     break
-                chart[i] += var
+                chart[i] += [var]
                 appended = True
                 break
 
@@ -246,7 +246,7 @@ def _balance_nested_list(
     min_index = nested_size.index(min(nested_size))
 
     if max_nested_size > max_size:
-        raise ValueError("FAILFAIL")
+        raise ValueError("Largest group exceeds `max_size` parameter")
     if num_current_groups > num_groups and max_nested_size > max_size:
         raise ValueError(
             "Number of tables is greater than value specified by `num_groups` "
@@ -258,7 +258,7 @@ def _balance_nested_list(
     elif all_same_len and (max_nested_size >= max_size):
         nested.append([item])
     else:
-        nested[min_index] += item
+        nested[min_index] += [item]
 
 
 def handle_form_individuals(individuals: str):
