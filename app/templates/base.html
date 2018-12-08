@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
     crossorigin="anonymous">
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
 {% endblock styles %}
 
 {% block title %}
@@ -47,13 +47,12 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                         <li class="dropdown-item"><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
-                        <li><div class="dropdown-divider"></div></li>
+                        <li>
+                            <div class="dropdown-divider"></div>
+                        </li>
                         <li class="dropdown-item"><a href="{{ url_for('auth.logout') }}">Logout</a></li>
                     </ul>
                 </li>
-                <!-- <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile -
-                        {{current_user.username}}</a></li>
-                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li> -->
                 {% endif %}
             </ul>
         </div>
@@ -70,6 +69,7 @@
 {% block footer %}
 <br>
 <hr>
-<footer>&copy; 2018 Ryan Opel - <a href="{{ url_for('main.about') }}">About</a> - <a href="https://github.com/opelr/seatingchart" target="_blank">Source <i class="fab fa-github"></i></a></footer>
+<footer>&copy; 2018 Ryan Opel - <a href="{{ url_for('main.about') }}">About</a> - <a href="https://github.com/opelr/seatingchart"
+        target="_blank">Source <i class="fab fa-github"></i></a></footer>
 {% endblock footer %}
 {% endblock %}
