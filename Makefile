@@ -8,7 +8,9 @@ dev-format:
 start-flask:
 	pipenv run flask run
 
-db:
+db-init:
 	pipenv run flask db init
+
+db-update:
 	pipenv run flask db migrate
 	pipenv run flask db upgrade
