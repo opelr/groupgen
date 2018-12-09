@@ -115,6 +115,16 @@ def save():
     return render_template("save_group.html", title="Save Group", form=form)
 
 
+@bp.route("/delete/<group>", methods=["GET"])
+def delete(group):
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    del_group = user.groups.filter_by(title=group).first()
+    db.session.delete(del_group)
+    db.session.commit()
+    flash("Group removed!")
+    return redirect(url_for("main.user", username=current_user.username))
+
+
 @bp.route("/about")
 def about():
     return render_template("about.html")

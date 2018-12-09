@@ -3,6 +3,13 @@
 {% block scripts %}
 {{ super() }}
 {{ moment.include_moment() }}
+
+<script>
+    // Allows modal deletions
+    $('#confirm-delete').on('show.bs.modal', function (e) {
+        $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    });
+</script>
 {% endblock %}
 
 {% block styles -%}
@@ -70,7 +77,7 @@
     </ul>
     {% endif %}
     {% endwith %}
-    
+
     {% block app_content %}{% endblock %}
 </div>
 
