@@ -3,10 +3,46 @@
 {% block app_content %}
 <table class="table table-hover">
     <tr>
-        <td width="256px"><img src="{{ user.avatar(256) }}"></td>
+        <td width="128px"><img src="{{ user.avatar(128) }}"></td>
         <td>
-            <h1>User: {{ user.username }}</h1>
+            <h1>{{ user.username }}</h1>
+            Saved groups: {{ groups.count() }}
         </td>
     </tr>
 </table>
+
+<h3>Saved Groups</h3>
+
+{% if groups.count() == 0 %}
+
+<p>You have not saved any groups yet!</p>
+
+{% else %}
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Individuals</th>
+            <th scope="col">Created</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for group in groups %}
+        <tr>
+            <td>{{ group.title }}</td>
+            <td>{{ group.indiv_display }}</td>
+            <td>{{ moment(group.creation_time).calendar() }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endif %}
+<!--
+TODO: If any saved groups, show table (Name, Date Created, button link to groupconfigs)
+    If click on Name, let them rename
+If none, say "No saved groups" 
+
+TODO: Add ./user/.../group/... URL pattern for group information and configs
+-->
 {% endblock %}

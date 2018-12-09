@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import TextAreaField, IntegerField, SubmitField
-from wtforms.validators import ValidationError
-from app.models import User
+from flask_login import current_user
+from wtforms import TextAreaField, IntegerField, SubmitField, StringField
+from wtforms.validators import ValidationError, DataRequired
+from app.models import User, Group
 
 import re
 
@@ -56,7 +57,7 @@ class SeatingChartForm(FlaskForm):
         individuals = re.split("[,;\n\r]+", self.individuals.data)
         together = re.split("[,;\n\r]+", together.data)
         together_indiv = list(set([i.strip() for i in together]))
-        
+
         all_present = True
         if together != [""]:
             all_present = all([i in individuals for i in together_indiv])
@@ -85,7 +86,19 @@ class SeatingChartForm(FlaskForm):
 
 
 class SaveForm(FlaskForm):
+    title = StringField("Title:", validators=[DataRequired()])
     submit = SubmitField("Save")
+
+    def validate_title(self, title):
+        user = User.query.filter_by(username=current_user.username).first()
+        if user is None:
+            raise ValidationError("User is not logged in")
+
+        group_title = (
+            Group.query.filter_by(user_id=user.id).filter_by(title=title.data).first()
+        )
+        if group_title is not None:
+            raise ValidationError("Please choose a different name")
 
 
 class LoadForm(FlaskForm):

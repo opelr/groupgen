@@ -37,7 +37,9 @@ def load_user(id):
 
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String)
     individuals = db.Column(db.String)
+    indiv_display = db.Column(db.String)
     creation_time = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     config = db.relationship("GroupConfig", backref="group", lazy="dynamic")
@@ -50,8 +52,8 @@ class GroupConfig(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     pairs = db.Column(db.String)
     separated = db.Column(db.String)
-    max_group_size = db.Column(db.Integer)
-    max_num_groups = db.Column(db.Integer)
+    max_size = db.Column(db.Integer)
+    num_groups = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     group_id = db.Column(db.Integer, db.ForeignKey("group.id"))
 

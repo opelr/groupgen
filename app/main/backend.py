@@ -311,3 +311,18 @@ def render_output(out: list):
         str: Prettified output for presentation to user
     """
     return "\n\r".join([", ".join(i) for i in out])
+
+
+def store_display(names: list):
+    """Converts a list of strings to a fixed-width (40) string
+    
+    Args:
+        names (list): List of strings to join
+    
+    Returns:
+        str: Joined and concatenated string for displaying
+    """
+    joined = ", ".join(names)
+    if len(joined) > 40:
+        return f"{joined:.40}" + "..."
+    return joined

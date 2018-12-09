@@ -3,29 +3,27 @@
 
 {% block app_content %}
 
-{% if not current_user.is_anonymous %}
-<h1>Hello, {{ current_user.firstname }}!</h1>
-{% endif %}
-
 <div class="row">
     <div class="col-md-4">
-        {{ wtf.quick_form(form) }}
+        {{ wtf.quick_form(form, button_map={'submit':'default'}) }}
     </div>
     <div class="col-md-4">
         <label class="control-label" for="groups">Groups</label>
         <br>
-        <textarea name="groups" rows="10" cols="54">
+        <textarea name="groups" rows="10" cols="54" disabled>
 {{ output_text }}
         </textarea>
-        <br>
+        <br><br>
         {% if not current_user.is_anonymous %}
-            <form action="">
-                <input type="submit" value="Save">
-            </form>
-            <br>
-            <form action="">
-                <input type="submit" value="Load">
-            </form>
+        <div class="row">
+            <div class="col-md-4">
+                {% if output_text == "" %}
+                <a class="btn btn-default" disabled>Save</a>
+                {% else %}
+                <a class="btn btn-default" href="{{ url_for('main.save', username=current_user.username) }}">Save</a>
+                {% endif %}
+            </div>
+        </div>
         {% endif %}
     </div>
 </div>
