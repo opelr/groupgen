@@ -66,19 +66,24 @@ def user(username):
     return render_template("user.html", user=user, groups=groups)
 
 
-@bp.route("/save/<username>", methods=["GET", "POST"])
-@login_required
-def save(username):
+@bp.route("/save/", methods=["GET", "POST"])
+def save():
     form = SaveForm()
-    user = User.query.filter_by(username=username).first_or_404()
+    
+    if current_user.is_anonymous:
+        flash("Need to log in")
+        return redirect(url_for("main.index"))
+        
+    if session["group_generation_form"] is None:
+        flash("No generated group data!")
+        return redirect(url_for("main.index"))
 
     if request.method == "GET":
         return render_template(
-            "save_group.html", title="Save Group", form=form, username=username
+            "save_group.html", title="Save Group", form=form, username=current_user.username
         )
 
     if request.method == "POST":
-        print("Save POST")
         if form.validate_on_submit() and session["group_generation_form"] is not None:
             user = User.query.filter_by(username=current_user.username).first()
 
