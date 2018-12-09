@@ -1,9 +1,9 @@
 from flask import render_template, redirect, url_for, flash, request
 from werkzeug.urls import url_parse
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user, current_user, login_required
 from app import db
 from app.auth import bp
-from app.auth.forms import LoginForm, RegistrationForm
+from app.auth.forms import LoginForm, RegistrationForm, EditProfileForm
 from app.models import User
 
 
@@ -52,3 +52,22 @@ def register():
         flash("Thanks for signing up!")
         return redirect(url_for("auth.login"))
     return render_template("auth/register.html", title="Register", form=form)
+
+
+@bp.route("/edit_profile", methods=["GET", "POST"])
+@login_required
+def edit_profile():
+    form = EditProfileForm(current_user.username, current_user.email)
+
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        db.session.commit()
+        flash("Your profile information has been updated.")
+        return redirect(url_for("main.user", username=current_user.username))
+
+    elif request.method == "GET":
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+
+    return render_template("auth/edit_profile.html", title="Edit Profile", form=form)
