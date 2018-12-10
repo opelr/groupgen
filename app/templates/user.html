@@ -56,7 +56,9 @@
             <td>{{ group.title }}</td>
             <td>{{ group.indiv_display }}</td>
             <td>{{ moment(group.creation_time).calendar() }}</td>
-            <td><a class="btn btn-danger btn-sm" href="#" data-href="{{ url_for('main.delete', group=group.title) }}" data-toggle="modal" data-target="#confirm-delete">Delete</a></td>
+            <td><a class="btn btn-primary btn-sm" href="{{ url_for('main.load', group=group.title) }}">Load</a></td>
+            <td><a class="btn btn-danger btn-sm" href="#" data-href="{{ url_for('main.delete', group=group.title) }}"
+                    data-toggle="modal" data-target="#confirm-delete">Delete</a></td>
         </tr>
         {% endfor %}
     </tbody>

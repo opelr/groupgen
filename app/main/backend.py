@@ -325,3 +325,42 @@ def store_display(names: list):
     if len(joined) > 40:
         return f"{joined:.40}" + "..."
     return joined
+
+
+def load_individuals(names: list):
+    """[summary]
+    
+    Args:
+        names (list): [description]
+    
+    Returns:
+        [type]: [description]
+    """
+    return "\n".join(names)
+
+
+def load_group_pairs(pairs: list):
+    """[summary]
+    
+    Args:
+        pairs (list): [description]
+    
+    Returns:
+        [type]: [description]
+    """
+    if pairs is None or pairs == []:
+        return pairs
+    return "\n".join([", ".join(i) for i in pairs])
+
+
+def load_group_numbers(i):
+    """[summary]
+    
+    Args:
+        i ([type]): [description]
+    
+    Returns:
+        [type]: [description]
+    """
+    return 0 if i == float("Inf") else i
+

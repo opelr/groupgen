@@ -13,6 +13,9 @@ from app.main.backend import (
     handle_form_integer,
     render_output,
     store_display,
+    load_individuals,
+    load_group_numbers,
+    load_group_pairs,
 )
 from app.models import User, Group, GroupConfig
 from app.main import bp
@@ -24,43 +27,55 @@ def index():
     output_text = ""
     form = SeatingChartForm()
 
-    if form.validate_on_submit():
-        indiv = handle_form_individuals(form.individuals.data)
-        together = handle_form_groupings(form.together.data)
-        separate = handle_form_groupings(form.separate.data)
-        num_groups = handle_form_integer(form.num_groups.data)
-        max_size = handle_form_integer(form.max_size.data)
+    try:
+        session_form = session["group_generation_form"]
+    except KeyError:
+        session_form = None
 
-        seating_chart = create_seating_chart(
-            names=indiv,
-            together=together,
-            apart=separate,
-            max_size=max_size,
-            num_groups=num_groups,
-        )
-        output_text = render_output(seating_chart)
+    if request.method == "GET":
+        if session_form is not None:
+            print(session_form)
+            form.individuals.data = session["group_generation_form"]["names"]
+            form.together.data = session["group_generation_form"]["together"]
+            form.separate.data = session["group_generation_form"]["apart"]
+            form.max_size.data = session["group_generation_form"]["max_size"]
+            form.num_groups.data = session["group_generation_form"]["num_groups"]
+            session["group_generation_form"] = None
 
-        ## Save form in session
-        session["group_generation_form"] = {
-            "names": indiv,
-            "together": together,
-            "apart": separate,
-            "max_size": max_size,
-            "num_groups": num_groups,
-        }
+    if request.method == "POST":
+        if form.validate_on_submit():
+            indiv = handle_form_individuals(form.individuals.data)
+            together = handle_form_groupings(form.together.data)
+            separate = handle_form_groupings(form.separate.data)
+            num_groups = handle_form_integer(form.num_groups.data)
+            max_size = handle_form_integer(form.max_size.data)
+
+            seating_chart = create_seating_chart(
+                names=indiv,
+                together=together,
+                apart=separate,
+                max_size=max_size,
+                num_groups=num_groups,
+            )
+            output_text = render_output(seating_chart)
+
+            ## Save form in session
+            session["group_generation_form"] = {
+                "names": indiv,
+                "together": together,
+                "apart": separate,
+                "max_size": max_size,
+                "num_groups": num_groups,
+            }
+
     return render_template(
-        "index.html",
-        title="Home",
-        form=form,
-        output_text=output_text,
+        "index.html", title="Home", form=form, output_text=output_text
     )
 
 
 @bp.route("/user/<username>")
 @login_required
 def user(username):
-    # TODO: Add basic user information
-    # TODO: Add ability to change user information (email, password, etc.)
     user = User.query.filter_by(username=username).first_or_404()
     groups = user.groups.order_by(Group.creation_time.desc())
     return render_template("user.html", user=user, groups=groups)
@@ -69,18 +84,21 @@ def user(username):
 @bp.route("/save/", methods=["GET", "POST"])
 def save():
     form = SaveForm()
-    
+
     if current_user.is_anonymous:
         flash("Need to log in")
         return redirect(url_for("main.index"))
-        
+
     if session["group_generation_form"] is None:
         flash("No generated group data!")
         return redirect(url_for("main.index"))
 
     if request.method == "GET":
         return render_template(
-            "save_group.html", title="Save Group", form=form, username=current_user.username
+            "save_group.html",
+            title="Save Group",
+            form=form,
+            username=current_user.username,
         )
 
     if request.method == "POST":
@@ -100,8 +118,8 @@ def save():
             groupconfig = GroupConfig(
                 pairs=json.dumps(session["group_generation_form"]["together"]),
                 separated=json.dumps(session["group_generation_form"]["apart"]),
-                max_size=json.dumps(session["group_generation_form"]["max_size"]),
-                num_groups=json.dumps(session["group_generation_form"]["num_groups"]),
+                max_size=session["group_generation_form"]["max_size"],
+                num_groups=session["group_generation_form"]["num_groups"],
                 user_id=user.id,
                 group_id=group.id,
             )
@@ -123,6 +141,23 @@ def delete(group):
     db.session.commit()
     flash("Group removed!")
     return redirect(url_for("main.user", username=current_user.username))
+
+
+@bp.route("/load/<group>", methods=["GET"])
+def load(group):
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    group_obj = user.groups.filter_by(title=group).first()
+    group_config = group_obj.config.first()
+
+    session["group_generation_form"] = {
+        "names": load_individuals(json.loads(group_obj.individuals)),
+        "together": load_group_pairs(json.loads(group_config.pairs)),
+        "apart": load_group_pairs(json.loads(group_config.separated)),
+        "max_size": load_group_numbers(group_config.max_size),
+        "num_groups": load_group_numbers(group_config.num_groups),
+    }
+    flash("Group successfully loaded!")
+    return redirect(url_for("main.index"))
 
 
 @bp.route("/about")
