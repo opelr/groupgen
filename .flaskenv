@@ -1,2 +1,2 @@
-FLASK_APP=seatingchart.py
+FLASK_APP=groupgen.py
 FLASK_ENV=development
