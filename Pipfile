@@ -12,6 +12,8 @@ flask-migrate = "*"
 flask-login = "*"
 flask-bootstrap = "*"
 flask-moment = "*"
+flask-mail = "*"
+pyjwt = "*"
 
 [dev-packages]
 black = "*"
