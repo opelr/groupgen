@@ -191,7 +191,7 @@ def _separate_individuals(groups: list, apart: list, max_size=float("Inf")) -> l
         [["a", "b", "c"], ["d", "e", "f"], ["g"]]
     """
 
-    chart = groups.copy()
+    chart = [i[:] for i in groups]
 
     if apart is None:
         return chart
@@ -202,22 +202,21 @@ def _separate_individuals(groups: list, apart: list, max_size=float("Inf")) -> l
 
         # 1. chart is empty
         if chart == []:
-            chart.append([item_1])
-            chart.append([item_2])
+            return [[item_1], [item_2]]
 
         # 2. pair is already grouped, and members are in different lists; good!
-        if pos_1 is not None and pos_2 is not None and pos_1 != pos_2:
+        elif pos_1 is not None and pos_2 is not None and pos_1 != pos_2:
             continue
 
         # 3. One pair member is grouped, other remaining
-        if ((pos_1 is None) ^ (pos_2 is None)) and (
+        elif ((pos_1 is None) ^ (pos_2 is None)) and (
             (pos_1 is not None) ^ (pos_2 is not None)
         ):
             remaining_item = item_1 if pos_1 is None else item_2
             _append_item(remaining_item, chart, apart, max_size)
 
         # 4. Both remaining
-        if pos_1 is None and pos_2 is None:
+        elif pos_1 is None and pos_2 is None:
             _append_item(item_1, chart, apart, max_size)
             _append_item(item_2, chart, apart, max_size)
 

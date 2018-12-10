@@ -21,7 +21,8 @@ class Backend_Test(unittest.TestCase):
         chart = app.main.backend._separate_individuals(groups, apart)
         assert chart == [["Amy", "Bob", "Carly", "Grace"], ["Dan", "Eesha", "Frank"]]
 
-        groups = [["Amy", "Bob", "Carly"], ["Dan", "Eesha", "Frank"]]
+        assert groups == [["Amy", "Bob", "Carly"], ["Dan", "Eesha", "Frank"]]
+
         apart = [["Amy", "Frank"], ["Dan", "Grace"], ["Amy", "Grace"]]
         chart = app.main.backend._separate_individuals(groups, apart)
         assert chart == [["Amy", "Bob", "Carly"], ["Dan", "Eesha", "Frank"], ["Grace"]]
