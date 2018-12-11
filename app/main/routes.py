@@ -34,7 +34,6 @@ def index():
 
     if request.method == "GET":
         if session_form is not None:
-            print(session_form)
             form.individuals.data = session["group_generation_form"]["names"]
             form.together.data = session["group_generation_form"]["together"]
             form.separate.data = session["group_generation_form"]["apart"]

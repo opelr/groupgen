@@ -14,6 +14,8 @@ flask-bootstrap = "*"
 flask-moment = "*"
 flask-mail = "*"
 pyjwt = "*"
+gunicorn = "*"
+"psycopg2" = "*"
 
 [dev-packages]
 black = "*"
