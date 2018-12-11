@@ -1,1 +1,1 @@
-web: gunicorn groupgen:app
+web: flask db upgrade; gunicorn groupgen:app

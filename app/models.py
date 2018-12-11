@@ -9,6 +9,8 @@ from app import db, login
 
 
 class User(UserMixin, db.Model):
+    __tablename__ = "users"
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     firstname = db.Column(db.String(64), index=True, unique=True)
@@ -34,15 +36,17 @@ class User(UserMixin, db.Model):
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
-            {'reset_password': self.id, 'exp': time() + expires_in},
-            current_app.config['SECRET_KEY'],
-            algorithm='HS256').decode('utf-8')
+            {"reset_password": self.id, "exp": time() + expires_in},
+            current_app.config["SECRET_KEY"],
+            algorithm="HS256",
+        ).decode("utf-8")
 
     @staticmethod
     def verify_reset_password_token(token):
         try:
-            id = jwt.decode(token, current_app.config['SECRET_KEY'],
-                            algorithms=['HS256'])['reset_password']
+            id = jwt.decode(
+                token, current_app.config["SECRET_KEY"], algorithms=["HS256"]
+            )["reset_password"]
         except:
             return
         return User.query.get(id)
@@ -54,6 +58,8 @@ def load_user(id):
 
 
 class Group(db.Model):
+    __tablename__ = "group"
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
     individuals = db.Column(db.String)
@@ -67,6 +73,8 @@ class Group(db.Model):
 
 
 class GroupConfig(db.Model):
+    __tablename__ = "groupconfig"
+
     id = db.Column(db.Integer, primary_key=True)
     pairs = db.Column(db.String)
     separated = db.Column(db.String)
