@@ -1,8 +1,7 @@
-from app import create_app, db, cli
+from app import create_app, db
 from app.models import User, Group, GroupConfig
 
 app = create_app()
-cli.register(app)
 
 
 @app.shell_context_processor
