@@ -349,7 +349,7 @@ def load_group_pairs(pairs: list):
         [type]: [description]
     """
     if pairs is None or pairs == []:
-        return pairs
+        return ""
     return "\n".join([", ".join(i) for i in pairs])
 
 

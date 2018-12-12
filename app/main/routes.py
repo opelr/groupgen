@@ -63,8 +63,8 @@ def index():
                 "names": indiv,
                 "together": together,
                 "apart": separate,
-                "max_size": max_size,
-                "num_groups": num_groups,
+                "max_size": load_group_numbers(max_size),
+                "num_groups": load_group_numbers(num_groups),
             }
 
     return render_template(

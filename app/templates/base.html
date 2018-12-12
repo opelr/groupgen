@@ -47,7 +47,7 @@
                 <li><a class="btn btn-secondary" href="{{ url_for('auth.login') }}">Log In</a></li>
                 {% else %}
                 <li class="btn-group">
-                    <a class="btn btn-secondary" type="button" href="#">Welcome, {{ current_user.username }}</a>
+                    <a class="btn btn-secondary" type="button" href="{{ url_for('main.user', username=current_user.username) }}">Welcome, {{ current_user.username }}</a>
                     <a class="btn btn-secondary" type="button" href="{{ url_for('main.user', username=current_user.username) }}">My Groups</a>
                     <a class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
