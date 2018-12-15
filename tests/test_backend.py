@@ -123,22 +123,19 @@ class Backend_Test(unittest.TestCase):
         assert len(chart_3) == 3
         assert max([len(i) for i in chart_3]) <= 4
 
-    def test_handle_form_individuals(self):
+    def test_form_to_function(self):
         inpt = "Amy\n\rBob,Carly;Dan\nEesha\rFrank"
         output = ["Amy", "Bob", "Carly", "Dan", "Eesha", "Frank"]
-        assert app.main.backend.handle_form_individuals(inpt) == output
-
-    def test_handle_form_groupings(self):
-        assert app.main.backend.handle_form_groupings(None) is None
-        assert app.main.backend.handle_form_groupings("") is None
+        assert app.main.backend.form_to_function(inpt, "individuals") == output
 
         inpt = "Amy,Bob\n\rCarly,Dan"
         output = [["Amy", "Bob"], ["Carly", "Dan"]]
-        assert app.main.backend.handle_form_groupings(inpt) == output
-
-    def test_handle_form_integer(self):
-        assert app.main.backend.handle_form_integer(0) == float("Inf")
-        assert app.main.backend.handle_form_integer(1) == 1
+        assert app.main.backend.form_to_function(inpt, "groupings") == output
+        assert app.main.backend.form_to_function(None, "groupings") is None
+        assert app.main.backend.form_to_function("", "groupings") is None
+    
+        assert app.main.backend.form_to_function(0, "integers") == float("Inf")
+        assert app.main.backend.form_to_function(1, "integers") == 1
 
     def test_render_output(self):
         inpt = [["Amy", "Bob"], ["Carly", "Dan"]]

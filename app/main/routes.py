@@ -8,14 +8,11 @@ from app import db
 from app.main.forms import SeatingChartForm, SaveForm, LoadForm
 from app.main.backend import (
     create_seating_chart,
-    handle_form_individuals,
-    handle_form_groupings,
-    handle_form_integer,
     render_output,
     store_display,
-    load_individuals,
-    load_group_numbers,
-    load_group_pairs,
+    form_to_function,
+    form_to_model,
+    model_to_form,
 )
 from app.models import User, Group, GroupConfig
 from app.main import bp
@@ -37,35 +34,45 @@ def index():
             form.individuals.data = session["group_generation_form"]["names"]
             form.together.data = session["group_generation_form"]["together"]
             form.separate.data = session["group_generation_form"]["apart"]
-            form.max_size.data = session["group_generation_form"]["max_size"]
             form.num_groups.data = session["group_generation_form"]["num_groups"]
+            form.max_size.data = session["group_generation_form"]["max_size"]
             session["group_generation_form"] = None
 
     if request.method == "POST":
         if form.validate_on_submit():
-            indiv = handle_form_individuals(form.individuals.data)
-            together = handle_form_groupings(form.together.data)
-            separate = handle_form_groupings(form.separate.data)
-            num_groups = handle_form_integer(form.num_groups.data)
-            max_size = handle_form_integer(form.max_size.data)
+
+            session["group_generation_form"] = {
+                "names": form.individuals.data,
+                "together": form.together.data,
+                "apart": form.separate.data,
+                "num_groups": form.num_groups.data,
+                "max_size": form.max_size.data,
+            }
+
+            indiv = form_to_function(
+                    session["group_generation_form"]["names"], "individuals"
+                )
+            together = form_to_function(
+                    session["group_generation_form"]["together"], "groupings"
+                )
+            separate =form_to_function(
+                    session["group_generation_form"]["apart"], "groupings"
+                ) 
+            num_groups = form_to_function(
+                    session["group_generation_form"]["num_groups"], "integers"
+                )
+            max_size = form_to_function(
+                    session["group_generation_form"]["max_size"], "integers"
+                )
 
             seating_chart = create_seating_chart(
                 names=indiv,
                 together=together,
                 apart=separate,
-                max_size=max_size,
                 num_groups=num_groups,
+                max_size=max_size,
             )
             output_text = render_output(seating_chart)
-
-            ## Save form in session
-            session["group_generation_form"] = {
-                "names": indiv,
-                "together": together,
-                "apart": separate,
-                "max_size": load_group_numbers(max_size),
-                "num_groups": load_group_numbers(num_groups),
-            }
 
     return render_template(
         "index.html", title="Home", form=form, output_text=output_text
@@ -104,9 +111,11 @@ def save():
         if form.validate_on_submit() and session["group_generation_form"] is not None:
             user = User.query.filter_by(username=current_user.username).first()
 
+            print(f"Names: {session['group_generation_form']['names']}")
+
             group = Group(
                 title=form.title.data,
-                individuals=json.dumps(session["group_generation_form"]["names"]),
+                individuals=form_to_model(session["group_generation_form"]["names"], "individuals"),
                 indiv_display=store_display(session["group_generation_form"]["names"]),
                 creation_time=datetime.utcnow(),
                 user_id=user.id,
@@ -115,8 +124,8 @@ def save():
             db.session.commit()
 
             groupconfig = GroupConfig(
-                pairs=json.dumps(session["group_generation_form"]["together"]),
-                separated=json.dumps(session["group_generation_form"]["apart"]),
+                pairs=form_to_model(session["group_generation_form"]["together"], "groupings"),
+                separated=form_to_model(session["group_generation_form"]["apart"], "groupings"),
                 max_size=session["group_generation_form"]["max_size"],
                 num_groups=session["group_generation_form"]["num_groups"],
                 user_id=user.id,
@@ -149,11 +158,11 @@ def load(group):
     group_config = group_obj.config.first()
 
     session["group_generation_form"] = {
-        "names": load_individuals(json.loads(group_obj.individuals)),
-        "together": load_group_pairs(json.loads(group_config.pairs)),
-        "apart": load_group_pairs(json.loads(group_config.separated)),
-        "max_size": load_group_numbers(group_config.max_size),
-        "num_groups": load_group_numbers(group_config.num_groups),
+        "names": model_to_form(group_obj.individuals, "individuals"),
+        "together": model_to_form(group_config.pairs, "groupings"),
+        "apart": model_to_form(group_config.separated, "groupings"),
+        "max_size": model_to_form(group_config.max_size, "integers"),
+        "num_groups": model_to_form(group_config.num_groups, "integers"),
     }
     flash("Group successfully loaded!")
     return redirect(url_for("main.index"))

@@ -9,6 +9,7 @@ application.
 import random
 from itertools import chain
 import re
+import json
 
 
 def create_seating_chart(
@@ -42,7 +43,11 @@ def create_seating_chart(
     remaining = names.copy()
     random.shuffle(remaining)
 
-    if apart is not None and together is not None and any([i in apart for i in together]):
+    if (
+        apart is not None
+        and together is not None
+        and any([i in apart for i in together])
+    ):
         raise ValueError("Cannot have overlap in `together` and `apart`")
 
     groups = _create_groups(together)
@@ -56,11 +61,13 @@ def create_seating_chart(
     for student in grouped_students:
         remaining.remove(student)
     for student in remaining:
-        _balance_nested_list(groups_sep, student, max_size=max_size, num_groups=num_groups)
+        _balance_nested_list(
+            groups_sep, student, max_size=max_size, num_groups=num_groups
+        )
 
     if len(groups_sep) > num_groups:
         raise ValueError(
-            "Group definitions do not allow for the ..."\
+            "Group definitions do not allow for the ..."
             "Please change the number of groups or the group/separates definitions"
         )
 
@@ -260,46 +267,6 @@ def _balance_nested_list(
         nested[min_index] += [item]
 
 
-def handle_form_individuals(individuals: str):
-    """Render SeatingChartForm.individuals useable for `create_seating_chart`
-
-    Args:
-        individuals (str): SeatingChartForm.individuals.data
-
-    Returns:
-        list: Form data split into a list
-    """
-    return list(re.split("[,;\n\r]+", individuals))
-
-
-def handle_form_groupings(grouping: str):
-    """Render SeatingChartForm.together and .separate useable for `create_seating_chart`
-
-    Args:
-        grouping (str): SeatingChartForm.[together|separate].data
-
-    Returns:
-        list: Form data split into a nested list
-    """
-    if grouping is None or grouping == "":
-        return None
-
-    nest = [i.split(",") for i in re.split("[\n\r]+", grouping)]
-    return [[i.strip() for i in j] for j in nest]
-
-
-def handle_form_integer(i: int):
-    """Render SeatingChartForm.max_indiv and .max_groups useable for `create_seating_chart`
-
-    Args:
-        i (int): SeatingChartForm.[max_indiv|max_groups].data
-
-    Returns:
-        int: Returns inf if input is 0, else returns input
-    """
-    return float("Inf") if i == 0 else i
-
-
 def render_output(out: list):
     """Pretty's `create_seating_chart` output
 
@@ -321,46 +288,51 @@ def store_display(names: list):
     Returns:
         str: Joined and concatenated string for displaying
     """
-    joined = ", ".join(names)
+    joined = ", ".join([i.strip() for i in names.split("\n")])
     if len(joined) > 40:
-        return f"{joined:.40}" + "..."
+        return f"{joined:.37}" + "..."
     return joined
 
 
-def load_individuals(names: list):
-    """[summary]
-    
-    Args:
-        names (list): [description]
-    
-    Returns:
-        [type]: [description]
-    """
-    return "\n".join(names)
+def form_to_function(input_str, category):
+    if not category in ["individuals", "groupings", "integers"]:
+        raise KeyError(
+            "'category' must of one of: 'individuals', 'groupings', or 'integers'"
+        )
+
+    if category == "individuals":
+        return list(re.split("[,;\n\r]+", input_str))
+
+    elif category == "groupings":
+        if input_str is None or input_str == "":
+            return None
+
+        nest = [i.split(",") for i in re.split("[\n\r]+", input_str)]
+        return [[i.strip() for i in j] for j in nest]
+
+    else:
+        return float("Inf") if input_str == 0 else input_str
 
 
-def load_group_pairs(pairs: list):
-    """[summary]
-    
-    Args:
-        pairs (list): [description]
-    
-    Returns:
-        [type]: [description]
-    """
-    if pairs is None or pairs == []:
-        return ""
-    return "\n".join([", ".join(i) for i in pairs])
+def form_to_model(input_str, category):
+    if not category in ["individuals", "groupings"]:
+        raise KeyError("'category' must of one of: 'individuals' or 'groupings'")
+
+    return json.dumps(form_to_function(input_str, category))
 
 
-def load_group_numbers(i):
-    """[summary]
-    
-    Args:
-        i ([type]): [description]
-    
-    Returns:
-        [type]: [description]
-    """
-    return 0 if i == float("Inf") else i
+def model_to_form(input_str, category):
+    if not category in ["individuals", "groupings", "integers"]:
+        raise KeyError(
+            "'category' must of one of: 'individuals', 'groupings', or 'integers'"
+        )
 
+    if category == "individuals":
+        return "\n".join(json.loads(input_str))
+    elif category == "groupings":
+        input_str = json.loads(input_str)
+        if input_str is None or input_str == []:
+            return ""
+        return "\n".join([", ".join(i) for i in input_str])
+    else:
+        return 0 if input_str == float("Inf") else input_str
